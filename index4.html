@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Premium White GSAP Page</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: none;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  color: #111;
+  overflow-x: hidden;
+}
+
+/* SECTIONS */
+section {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px;
+}
+
+h1 { font-size: 4rem; }
+h2 { font-size: 2rem; margin-bottom: 20px; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(120deg, #fff, #eaeaea);
+}
+
+/* ABOUT */
+.about {
+  max-width: 800px;
+}
+
+/* FEATURES */
+.features {
+  display: flex;
+  gap: 40px;
+}
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.card i {
+  font-size: 40px;
+  color: #0077ff;
+}
+
+/* IMAGE SPLIT */
+.split {
+  display: flex;
+  gap: 50px;
+}
+.split img {
+  width: 400px;
+  border-radius: 15px;
+}
+
+/* PARALLAX */
+.parallax {
+  background: url('https://picsum.photos/1600/900?random=11') center/cover fixed;
+  color: white;
+}
+
+/* GALLERY */
+.gallery {
+  display: flex;
+  gap: 20px;
+}
+.gallery img {
+  width: 250px;
+  border-radius: 10px;
+}
+
+/* PIN */
+.pin {
+  font-size: 3rem;
+}
+
+/* CTA */
+.cta button {
+  padding: 15px 30px;
+  border: none;
+  background: black;
+  color: white;
+  font-size: 1rem;
+  border-radius: 30px;
+}
+
+/* FOOTER */
+footer {
+  height: 50vh;
+}
+
+/* CURSOR */
+.cursor {
+  width: 20px;
+  height: 20px;
+  border: 2px solid black;
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+.cursor-blur {
+  width: 60px;
+  height: 60px;
+  background: rgba(0,0,0,0.1);
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* ANIMATION BASE */
+.animate {
+  opacity: 0;
+  transform: translateY(80px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="cursor"></div>
+<div class="cursor-blur"></div>
+
+<!-- 1 HERO -->
+<section class="hero">
+  <h1 class="animate">Clean White Experience</h1>
+</section>
+
+<!-- 2 ABOUT -->
+<section class="about">
+  <h2 class="animate">About</h2>
+  <p class="animate">Smooth animations, minimal UI, and immersive scroll storytelling.</p>
+</section>
+
+<!-- 3 FEATURES -->
+<section>
+  <div class="features">
+    <div class="card animate">
+      <i class="bi bi-lightning"></i>
+      <h2>Fast</h2>
+    </div>
+    <div class="card animate">
+      <i class="bi bi-stars"></i>
+      <h2>Elegant</h2>
+    </div>
+    <div class="card animate">
+      <i class="bi bi-phone"></i>
+      <h2>Responsive</h2>
+    </div>
+  </div>
+</section>
+
+<!-- 4 SPLIT -->
+<section>
+  <div class="split">
+    <img class="animate" src="https://picsum.photos/400/500?random=21">
+    <div>
+      <h2 class="animate">Modern Layout</h2>
+      <p class="animate">Text + visuals working together beautifully.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 PARALLAX -->
+<section class="parallax">
+  <h1 class="animate">Scroll Magic</h1>
+</section>
+
+<!-- 6 GALLERY -->
+<section>
+  <div class="gallery">
+    <img class="animate" src="https://picsum.photos/250?random=31">
+    <img class="animate" src="https://picsum.photos/250?random=32">
+    <img class="animate" src="https://picsum.photos/250?random=33">
+  </div>
+</section>
+
+<!-- 7 PIN -->
+<section class="pin">
+  <h1>Pinned Story</h1>
+</section>
+
+<!-- 8 CTA -->
+<section class="cta">
+  <h2 class="animate">Start Now</h2>
+  <button class="animate">Get Started</button>
+</section>
+
+<!-- 9 FOOTER -->
+<footer>
+  <h2 class="animate">Footer Section</h2>
+</footer>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// SCROLL ANIMATIONS
+gsap.utils.toArray(".animate").forEach(el => {
+  gsap.to(el, {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    scrollTrigger: {
+      trigger: el,
+      start: "top 85%",
+      scrub: true
+    }
+  });
+});
+
+// PIN SECTION
+gsap.to(".pin", {
+  scrollTrigger: {
+    trigger: ".pin",
+    start: "top top",
+    end: "+=400",
+    pin: true,
+    scrub: true
+  }
+});
+
+// PARALLAX TEXT
+gsap.to(".parallax h1", {
+  y: -150,
+  scrollTrigger: {
+    trigger: ".parallax",
+    scrub: true
+  }
+});
+
+// CURSOR
+const cursor = document.querySelector(".cursor");
+const blur = document.querySelector(".cursor-blur");
+
+document.addEventListener("mousemove", e => {
+  gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+  gsap.to(blur, { x: e.clientX, y: e.clientY, duration: 0.3 });
+});
+
+// HOVER EFFECT
+document.querySelectorAll("h1, h2, button, img, .card").forEach(el => {
+  el.addEventListener("mouseenter", () => {
+    gsap.to(cursor, { scale: 2 });
+    gsap.to(blur, { scale: 2 });
+  });
+  el.addEventListcener("mouseleave", () => {
+    gsap.to(cursor, { scale: 1 });
+    gsap.to(blur, { scale: 1 });
+  });
+});
+</script>
+
+</body>
+</html>
