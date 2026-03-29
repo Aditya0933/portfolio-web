@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Velocity | Inspired by Lando Norris</title>
+    <!-- Google Fonts & Bootstrap Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0a0a0a;
+        color: #f0f0f0;
+        overflow-x: hidden;
+      }
+
+      /* ---------- SECTION 1: HERO (full-screen, cinematic) ---------- */
+      .hero {
+        height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        overflow: hidden;
+      }
+      .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("https://picsum.photos/id/107/1920/1080") center/cover;
+        opacity: 0.3;
+        mix-blend-mode: overlay;
+        z-index: 0;
+      }
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        padding: 0 20px;
+      }
+      .hero-name {
+        font-size: clamp(3.5rem, 12vw, 8rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #fff, #aaa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      .hero-role {
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        font-weight: 500;
+        margin: 1rem 0;
+        color: #ccc;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      .hero-quote {
+        font-size: 1.3rem;
+        font-style: italic;
+        margin-top: 2rem;
+        border-left: 3px solid #e3002b;
+        padding-left: 1.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      .scroll-hint {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #aaa;
+        animation: bounce 2s infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(10px);
+        }
+      }
+
+      /* ---------- SECTION 2: ABOUT (clean, minimal) ---------- */
+      .about {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 20px;
+        background: #0f0f0f;
+      }
+      .about-container {
+        max-width: 800px;
+        text-align: center;
+      }
+      .about h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+      }
+      .about p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: #bbb;
+      }
+      .about-stats {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        margin-top: 40px;
+      }
+      .stat {
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #e3002b;
+      }
+      .stat-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* ---------- SECTION 3: GALLERY (grid, hover zoom) ---------- */
+      .gallery {
+        padding: 100px 20px;
+        background: #111;
+      }
+      .gallery h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .gallery-item {
+        overflow: hidden;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .gallery-item:hover img {
+        transform: scale(1.05);
+      }
+      .gallery-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        padding: 20px;
+        transform: translateY(100%);
+        transition: transform 0.4s ease;
+      }
+      .gallery-item:hover .gallery-caption {
+        transform: translateY(0);
+      }
+
+      /* ---------- SECTION 4: HELMETS (horizontal scroll) ---------- */
+      .helmets {
+        padding: 100px 20px;
+        background: #0a0a0a;
+      }
+      .helmets h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }s
+      .helmets-sub {
+        text-align: center;
+        color: #aaa;
+        margin-bottom: 50px;
+      }
+      .helmets-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 30px;
+        padding: 20px 40px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .helmet-card {
+        flex: 0 0 280px;
+        background: #1a1a1a;
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        scroll-snap-align: start;
+        transition: transform 0.3s;
+      }
+      .helmet-card:hover {
+        transform: translateY(-10px);
+      }
+      .helmet-card img {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 15px;
+      }
+      .helmet-name {
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+      .helmet-year {
+        color: #e3002b;
+        font-size: 0.9rem;
+      }
+
+      /* ---------- SECTION 5: PARTNERS (logos grid) ---------- */
+      .partners {
+        padding: 100px 20px;
+        background: #0f0f0f;
+        text-align: center;
+      }
+      .partners h2 {
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+      }
+      .logo-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 60px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .logo-grid img {
+        height: 60px;
+        filter: brightness(0) invert(1);
+        opacity: 0.6;
+        transition: opacity 0.3s;
+      }
+      .logo-grid img:hover {
+        opacity: 1;
+      }
+
+      /* ---------- SECTION 6: CTA (full-width with parallax) ---------- */
+      .cta {
+        height: 70vh;
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+          url("https://picsum.photos/id/4/1920/1080") center/cover fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .cta h2 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      .cta button {
+        background: #e3002b;
+        border: none;
+        padding: 14px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        border-radius: 40px;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      .cta button:hover {
+        background: #ff0040;
+        transform: scale(1.05);
+      }
+
+      /* ---------- FOOTER ---------- */
+      footer {
+        background: #000;
+        padding: 50px 20px;
+        text-align: center;
+        color: #777;
+      }
+      footer .social {
+        margin-bottom: 20px;
+      }
+      footer i {
+        font-size: 1.5rem;
+        margin: 0 12px;
+        transition: color 0.3s;
+        cursor: pointer;
+      }
+      footer i:hover {
+        color: #e3002b;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SECTION 1: HERO -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <h1 class="hero-name">Max Velocity</h1>
+        <p class="hero-role">2025 Elite Racing Driver</p>
+        <blockquote class="hero-quote">
+          “It doesn’t matter where you start,<br />
+          it’s how you progress from there.”
+        </blockquote>
+      </div>
+      <div class="scroll-hint">scroll</div>
+    </section>
+
+    <!-- SECTION 2: ABOUT -->
+    <section class="about">
+      <div class="about-container">
+        <h2>Defining a Legacy</h2>
+        <p>
+          From karting prodigy to podium contender, the journey is fueled by
+          relentless determination. Every corner, every straight — a testament
+          to the pursuit of perfection.
+        </p>
+        <div class="about-stats">
+          <div class="stat">
+            <div class="stat-number">84</div>
+            <div class="stat-label">Races</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">12</div>
+            <div class="stat-label">Podiums</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Wins</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: GALLERY -->
+    <section class="gallery">
+      <h2>Moments That Define</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://picsum.photos/id/1/400/500" alt="Race start" />
+          <div class="gallery-caption">Miami GP, 2024</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://picsum.photos/id/15/400/500" alt="Podium" />
+          <div class="gallery-caption">Silverstone, 2023</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://picsum.photos/id/26/400/500" alt="Celebration" />
+          <div class="gallery-caption">Monaco, 2024</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: HELMETS (horizontal scroll) -->
+    <section class="helmets">
+      <h2>Helmets</h2>
+      <p class="helmets-sub">Signature designs that tell a story</p>
+      <div class="helmets-scroll">
+        <div class="helmet-card">
+          <img src="https://picsum.photos/id/101/300/300" alt="Helmet 1" />
+          <div class="helmet-name">Dark Glitter</div>
+          <div class="helmet-year">2025</div>
+        </div>
+        <div class="helmet-card">
+          <img src="https://picsum.photos/id/102/300/300" alt="Helmet 2" />
+          <div class="helmet-name">Porcelain</div>
+          <div class="helmet-year">2024</div>
+        </div>
+        <div class="helmet-card">
+          <img src="https://picsum.photos/id/103/300/300" alt="Helmet 3" />
+          <div class="helmet-name">Japan Edition</div>
+          <div class="helmet-year">2024</div>
+        </div>
+        <div class="helmet-card">
+          <img src="https://picsum.photos/id/104/300/300" alt="Helmet 4" />
+          <div class="helmet-name">Chrome</div>
+          <div class="helmet-year">2023</div>
+        </div>
+        <div class="helmet-card">
+          <img src="https://picsum.photos/id/105/300/300" alt="Helmet 5" />
+          <div class="helmet-name">Basketball</div>
+          <div class="helmet-year">2022</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PARTNERS -->
+    <section class="partners">
+      <h2>Partners & Campaigns</h2>
+      <div class="logo-grid">
+        <!-- Placeholder logos (using Font Awesome/icon placeholders) -->
+        <img
+          src="https://placehold.co/200x80/333/fff?text=PARTNER+A"
+          alt="Partner A"
+        />
+        <img
+          src="https://placehold.co/200x80/333/fff?text=PARTNER+B"
+          alt="Partner B"
+        />
+        <img
+          src="https://placehold.co/200x80/333/fff?text=PARTNER+C"
+          alt="Partner C"
+        />
+        <img
+          src="https://placehold.co/200x80/333/fff?text=PARTNER+D"
+          alt="Partner D"
+        />
+      </div>
+    </section>
+
+    <!-- SECTION 6: CTA -->
+    <section class="cta">
+      <div>
+        <h2>Join the Journey</h2>
+        <button id="ctaButton">Explore Collection</button>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PARTNERS -->
+
+    <footer>
+      <div class="social">
+        <i class="bi bi-instagram"></i>
+        <i class="bi bi-twitter-x"></i>
+        <i class="bi bi-youtube"></i>
+      </div>
+      <p>© 2025 Velocity Racing. Inspired by the spirit of competition.</p>
+    </footer>
+
+    <!-- GSAP and ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+
+      // ---------- HERO ANIMATIONS ----------
+      const heroTimeline = gsap.timeline();
+      heroTimeline
+        .to(".hero-name", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
+        .to(
+          ".hero-role",
+          { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+          "-=0.6",
+        )
+        .to(
+          ".hero-quote",
+          { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+          "-=0.5",
+        );
+
+      // ---------- ABOUT SECTION: STATS ANIMATION ----------
+      gsap.fromTo(
+        ".about h2",
+        { opacity: 0, y: 850 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          scrollTrigger: { trigger: ".about", start: "top 10%" },
+        },
+      );
+      gsap.fromTo(
+        ".about p",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          scrollTrigger: { trigger: ".about", start: "top 75%" },
+        },
+      );
+      gsap.fromTo(
+        ".stat",
+        { opacity: 0, scale: 0.8 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.2,
+          scrollTrigger: { trigger: ".about-stats", start: "top 85%" },
+        },
+      );
+
+      // ---------- GALLERY: REVEAL ON SCROLL ----------
+      gsap.utils.toArray(".gallery-item").forEach((item, i) => {
+        gsap.fromTo(
+          item,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            delay: i * 0.15,
+            scrollTrigger: {
+              trigger: item,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      });
+
+      // ---------- HELMETS: HORIZONTAL SCROLL ANIMATION (simple reveal) ----------
+      gsap.utils.toArray(".helmet-card").forEach((card, i) => {
+        gsap.fromTo(
+          card,
+          { opacity: 0, x: 50 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            delay: i * 0.1,
+            scrollTrigger: {
+              trigger: ".helmets-scroll",
+              start: "top 80%",
+            },
+          },
+        );
+      });
+
+      // ---------- PARTNERS: STAGGER FADE ----------
+      gsap.fromTo(
+        ".logo-grid img",
+        { opacity: 0, scale: 0.9 },
+        {
+          opacity: 0.6,
+          scale: 1,
+          stagger: 0.1,
+          duration: 0.8,
+          scrollTrigger: { trigger: ".partners", start: "top 80%" },
+        },
+      );
+
+      // ---------- CTA BUTTON EFFECT ----------
+      document.getElementById("ctaButton").addEventListener("click", () => {
+        alert("Explore the world of speed — coming soon!");
+      });
+
+      // ---------- SMOOTH SCROLL (optional) ----------
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document
+            .querySelector(this.getAttribute("href"))
+            .scrollIntoView({ behavior: "smooth" });
+        });
+      });
+
+      // Refresh ScrollTrigger after load
+      window.addEventListener("load", () => ScrollTrigger.refresh());
+    </script>
+  </body>
+</html>

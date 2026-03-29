@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Image Slider Multi Circle</title>
+  </head>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    #main-parent-container {
+      width: 100%;
+      height: 100vh;
+      perspective: 1200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #main-parent-container > div {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Items */
+    .item {
+      position: absolute;
+      width: 120px;
+      height: 150px;
+      background: linear-gradient(45deg, cyan, purple);
+      border-radius: 10px;
+    }
+
+    /* Orbit */
+    .orbit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%) rotateX(90deg);
+    }
+  </style>
+
+  <body>
+    <div id="main-parent-container">
+      <div id="first-child-circle"></div>
+      <div id="second-child-circle"></div>
+      <div id="third-child-circle"></div>
+    </div>
+  </body>
+  <script>
+    const items = document.querySelectorAll("#first-child-circle .item");
+    const total = items.length;
+    const radius = 250; // distance from center
+
+    items.forEach((item, index) => {
+      const angle = (360 / total) * index;
+
+      item.style.transform = `
+    rotateY(${angle}deg)
+    translateZ(${radius}px)
+  `;
+    });
+  </script>
+  <script>
+    function createCircle(circleId, total, radius) {
+      const circle = document.getElementById(circleId);
+
+      // Clear old content (important)
+      circle.innerHTML = "";
+
+      // Create orbit
+      const orbit = document.createElement("div");
+      orbit.className = "orbit";
+      orbit.style.width = radius * 2 + "px";
+      orbit.style.height = radius * 2 + "px";
+      circle.appendChild(orbit);
+
+      // Create items
+      for (let i = 0; i < total; i++) {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const angle = (360 / total) * i;
+
+        item.style.transform = `
+      rotateY(${angle}deg)
+      translateZ(${radius}px)
+    `;
+
+        circle.appendChild(item);
+      }
+    }
+
+    // Create clean circles
+    createCircle("first-child-circle", 6, 200);
+    createCircle("second-child-circle", 10, 350);
+    createCircle("third-child-circle", 14, 500);
+    // Create multiple rings
+    createCircle("first-child-circle", 6, 200, 90);
+    createCircle("second-child-circle", 10, 350, 70);
+    createCircle("third-child-circle", 14, 500, 60);
+  </script>
+
+  <script>
+    gsap.set("#main-parent-container", {
+      rotationX: -20,
+    });
+
+    gsap.to("#first-child-circle", {
+      rotationY: 360,
+      duration: 10,
+      repeat: -1,
+      ease: "linear",
+    });
+
+    gsap.to("#second-child-circle", {
+      rotationY: -360,
+      duration: 20,
+      repeat: -1,
+      ease: "linear",
+    });
+
+    gsap.to("#third-child-circle", {
+      rotationY: 360,
+      duration: 30,
+      repeat: -1,
+      ease: "linear",
+    });
+  </script>
+</html>

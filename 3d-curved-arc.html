@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3D Curved Card Slider</title>
+
+<style>
+body {
+  margin: 0;
+  background: #020617;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  font-family: Arial, sans-serif;
+}
+
+/* MAIN CONTAINER */
+.container {
+  position: relative;
+  width: 800px;
+  height: 300px;
+  transform-style: preserve-3d;
+}
+
+/* CARD STYLE (ALL SAME SIZE) */
+.card {
+  position: absolute;
+  width: 200px;
+  height: 260px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #0f172a, #1e293b);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  transition: all 0.6s ease;
+}
+
+/* ACTIVE CENTER CARD */
+.card.active {
+  transform: scale(1.1);
+  z-index: 10;
+  opacity: 1;
+}
+
+/* SIDE CARDS */
+.card.side {
+  opacity: 0.6;
+}
+
+/* CONTROLS */
+.controls {
+  position: absolute;
+  bottom: 50px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+  background: #1e40af;
+  color: white;
+  cursor: pointer;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container" id="slider">
+  <div class="card">COSMIC RIM</div>
+  <div class="card">AURA SHIFT</div>
+  <div class="card">PRISM VORTEX</div>
+  <div class="card">GLASS ARC</div>
+  <div class="card">NEON FLOW</div>
+</div>
+
+<div class="controls">
+  <button onclick="move(-1)">⬅</button>
+  <button onclick="move(1)">➡</button>
+</div>
+
+<script>
+const cards = document.querySelectorAll(".card");
+let current = 0;
+
+function updateSlider() {
+  const offset = 220; // horizontal spacing
+  const rotate = 40;  // curve angle
+  const depth = 300;  // Z distance
+
+  cards.forEach((card, i) => {
+    const diff = i - current;
+
+    let x = diff * offset;
+    let z = -Math.abs(diff) * 120;
+    let rotateY = diff * -rotate;
+
+    card.style.transform = `
+      translateX(${x}px)
+      translateZ(${z}px)
+      rotateY(${rotateY}deg)
+    `;
+
+    card.classList.remove("active");
+    card.classList.add("side");
+
+    if (diff === 0) {
+      card.classList.add("active");
+      card.classList.remove("side");
+    }
+  });
+}
+
+function move(dir) {
+  current += dir;
+
+  if (current < 0) current = cards.length - 1;
+  if (current >= cards.length) current = 0;
+
+  updateSlider();
+}
+
+updateSlider();
+</script>
+
+</body>
+</html>

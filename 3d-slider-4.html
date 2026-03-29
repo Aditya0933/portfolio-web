@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Solar System – Nine Planets (Navagraha)</title>
+    <!-- GSAP for smooth orbital animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #020214, #000000);
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Poppins', 'Arial', sans-serif;
+        }
+
+        /* main 3D container */
+        .universe {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            perspective: 1400px;
+            perspective-origin: 50% 50%;
+            overflow: hidden;
+        }
+
+        /* 3D stage – tilted for dramatic view */
+        .solar-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 1px;
+            transform-style: preserve-3d;
+            transform: translate(-50%, -50%) rotateX(58deg) rotateZ(5deg);
+            will-change: transform;
+        }
+
+        /* ========== THE SUN ========== */
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            margin-left: -40px;
+            margin-top: -40px;
+            background: radial-gradient(circle at 35% 35%, #ffdd88, #ffaa33, #ff6600);
+            border-radius: 50%;
+            box-shadow: 0 0 60px 20px rgba(255, 100, 0, 0.8), 0 0 100px 40px rgba(255, 80, 0, 0.5);
+            animation: sunGlow 3s infinite alternate ease-in-out;
+            z-index: 10;
+        }
+
+        @keyframes sunGlow {
+            0% { transform: scale(1); box-shadow: 0 0 50px 15px rgba(255,120,0,0.7); }
+            100% { transform: scale(1.04); box-shadow: 0 0 85px 35px rgba(255,160,0,0.9); }
+        }
+
+        /* Orbit ring base style (circular path) */
+        .orbit-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 1px solid rgba(100, 180, 255, 0.35);
+            box-shadow: 0 0 8px rgba(0, 200, 255, 0.2);
+            transform: rotateX(90deg);
+            transform-style: preserve-3d;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(80, 150, 255, 0.02) 0%, rgba(0,0,0,0) 80%);
+        }
+
+        /* Planet base style – simple circles */
+        .planet {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,200,0.3);
+            transform-style: preserve-3d;
+            transition: box-shadow 0.2s;
+            will-change: transform;
+        }
+
+        /* tiny label for each planet (clean & minimal) */
+        .planet-label {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 500;
+            color: #ccddff;
+            text-shadow: 0 0 4px #0066aa;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.55);
+            padding: 2px 6px;
+            border-radius: 20px;
+            backdrop-filter: blur(3px);
+            letter-spacing: 0.5px;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        /* starfield twinkling */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle 2s infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* nebula glow spots */
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* UI controls panel */
+        .controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(5, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            border: 1px solid rgba(0, 180, 255, 0.5);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            z-index: 200;
+            font-family: monospace;
+        }
+
+        .controls label {
+            font-size: 13px;
+            color: #bbffff;
+            letter-spacing: 1px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            cursor: pointer;
+            background: #1e3a5f;
+            height: 3px;
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+        input[type="range"]:focus { outline: none; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #0cf;
+            border: none;
+            box-shadow: 0 0 6px cyan;
+            cursor: pointer;
+        }
+
+        .speed-value {
+            min-width: 52px;
+            text-align: center;
+            font-size: 14px;
+            color: #0ff;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: rgba(0, 150, 200, 0.3);
+            border: 1px solid #0cf;
+            color: #eef;
+            padding: 5px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background: rgba(0, 200, 255, 0.6);
+            box-shadow: 0 0 12px cyan;
+            transform: scale(0.96);
+        }
+
+        .title {
+            position: fixed;
+            top: 20px;
+            left: 24px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #88ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(0,160,255,0.4);
+            z-index: 200;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+        .sub {
+            font-size: 0.7rem;
+            color: #aaddff;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .controls { padding: 6px 14px; gap: 12px; }
+            .title { font-size: 1rem; top: 16px; left: 16px; }
+            .planet-label { font-size: 8px; bottom: -18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="universe">
+    <div class="solar-system" id="solarSystem">
+        <!-- SUN will be placed here -->
+        <div class="sun"></div>
+        <!-- All planets & orbits will be injected dynamically -->
+    </div>
+</div>
+
+<div class="controls">
+    <label>🌀 GLOBAL SPEED</label>
+    <input type="range" id="speedSlider" min="0" max="2.2" step="0.01" value="1.0">
+    <span class="speed-value" id="speedVal">1.00x</span>
+    <button class="btn" id="pauseBtn">⏸️ PAUSE</button>
+    <button class="btn" id="resumeBtn">▶️ RESUME</button>
+</div>
+<div class="title">
+    🌌 THE NINE GRAH <span class="sub">| Solar System 3D</span>
+</div>
+
+<script>
+    (function() {
+        const solarSystem = document.getElementById('solarSystem');
+
+        // ----- PLANET DATA (9 planets: Mercury to Pluto) -----
+        // each: name, color, size(px), orbital radius(px), period (in seconds for full orbit at speed=1)
+        // periods based on relative orbital speeds (Mercury fastest, Pluto slowest)
+        // Earth takes 12 seconds per revolution at normal speed -> feels good visually.
+        const planetsData = [
+            { name: "MERCURY", color: "#bc9a6c", size: 8,  radius: 70,  period: 4.8  },   // fast
+            { name: "VENUS",   color: "#e6c87a", size: 10, radius: 98,  period: 7.2  },
+            { name: "EARTH",   color: "#4c9ad9", size: 11, radius: 126, period: 12.0 },
+            { name: "MARS",    color: "#cd5a3c", size: 9,  radius: 154, period: 15.5 },
+            { name: "JUPITER", color: "#d8bba6", size: 22, radius: 210, period: 28.0 },
+            { name: "SATURN",  color: "#e8cfaa", size: 20, radius: 266, period: 34.5 },
+            { name: "URANUS",  color: "#b0e2e8", size: 17, radius: 322, period: 44.0 },
+            { name: "NEPTUNE", color: "#3b70cc", size: 17, radius: 378, period: 52.0 },
+            { name: "PLUTO",   color: "#c2aa8c", size: 7,  radius: 434, period: 64.0 }
+        ];
+
+        // store animation objects for global control
+        const planetAnimations = [];
+
+        // Helper: create orbit ring (circular path)
+        function createOrbitRing(radius, planetColor) {
+            const ring = document.createElement('div');
+            ring.className = 'orbit-ring';
+            const diameter = radius * 2;
+            ring.style.width = `${diameter}px`;
+            ring.style.height = `${diameter}px`;
+            ring.style.marginLeft = `-${radius}px`;
+            ring.style.marginTop = `-${radius}px`;
+            ring.style.border = `1px solid ${planetColor}66`;  // semi-transparent colored border
+            ring.style.boxShadow = `0 0 8px ${planetColor}44`;
+            return ring;
+        }
+
+        // Helper: create a planet element with label
+        function createPlanetElement(color, size, name) {
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.top = '50%';
+            container.style.left = '50%';
+            container.style.width = `${size}px`;
+            container.style.height = `${size}px`;
+            container.style.marginLeft = `-${size/2}px`;
+            container.style.marginTop = `-${size/2}px`;
+            
+            // planet sphere
+            const planetDiv = document.createElement('div');
+            planetDiv.className = 'planet';
+            planetDiv.style.width = '100%';
+            planetDiv.style.height = '100%';
+            planetDiv.style.background = `radial-gradient(circle at 35% 35%, ${color}, ${color}dd, ${color}99)`;
+            planetDiv.style.borderRadius = '50%';
+            planetDiv.style.boxShadow = `0 0 12px ${color}aa, inset -2px -2px 6px rgba(0,0,0,0.4)`;
+            
+            // label
+            const label = document.createElement('div');
+            label.className = 'planet-label';
+            label.innerText = name;
+            label.style.position = 'absolute';
+            label.style.bottom = '-24px';
+            label.style.left = '50%';
+            label.style.transform = 'translateX(-50%)';
+            label.style.fontSize = name === 'JUPITER' ? '12px' : '10px';
+            
+            planetDiv.appendChild(label);
+            container.appendChild(planetDiv);
+            return container;
+        }
+
+        // Create stars background
+        function generateStars() {
+            const universe = document.querySelector('.universe');
+            const starCount = 800;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 2.8 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                star.style.animationDuration = 1 + Math.random() * 3 + 's';
+                star.style.opacity = 0.2 + Math.random() * 0.6;
+                universe.appendChild(star);
+            }
+            // add distant nebulae
+            for (let i = 0; i < 20; i++) {
+                const neb = document.createElement('div');
+                neb.classList.add('nebula');
+                neb.style.width = Math.random() * 200 + 100 + 'px';
+                neb.style.height = neb.style.width;
+                neb.style.left = Math.random() * 100 + '%';
+                neb.style.top = Math.random() * 100 + '%';
+                neb.style.background = `radial-gradient(circle, rgba(${80+Math.random()*80}, ${60+Math.random()*70}, 200, 0.12) 0%, rgba(0,0,0,0) 80%)`;
+                document.querySelector('.universe').appendChild(neb);
+            }
+        }
+
+        // Create all planets and orbits
+        function buildSolarSystem() {
+            for (let i = 0; i < planetsData.length; i++) {
+                const data = planetsData[i];
+                const radius = data.radius;
+                const orbitColor = data.color;
+                
+                // 1) Orbit ring (visual path)
+                const orbitRing = createOrbitRing(radius, orbitColor);
+                solarSystem.appendChild(orbitRing);
+                
+                // 2) Create pivot for this planet (rotates around Y axis)
+                const pivot = document.createElement('div');
+                pivot.className = `planet-pivot-${i}`;
+                pivot.style.position = 'absolute';
+                pivot.style.top = '50%';
+                pivot.style.left = '50%';
+                pivot.style.width = '1px';
+                pivot.style.height = '1px';
+                pivot.style.transformStyle = 'preserve-3d';
+                solarSystem.appendChild(pivot);
+                
+                // 3) Create planet element and position it at distance = radius on X axis
+                const planetElem = createPlanetElement(data.color, data.size, data.name);
+                planetElem.style.transform = `translateX(${radius}px)`;
+                pivot.appendChild(planetElem);
+                
+                // 4) GSAP animation: rotate pivot Y from 0 to 360 degrees over given period
+                const animation = gsap.to(pivot, {
+                    rotationY: 360,
+                    duration: data.period,
+                    repeat: -1,
+                    ease: "none",
+                    transformOrigin: "center center",
+                    modifiers: {
+                        rotationY: (x) => parseFloat(x) % 360
+                    }
+                });
+                
+                // store animation and pivot for optional future tweaks
+                planetAnimations.push({
+                    anim: animation,
+                    pivot: pivot,
+                    period: data.period,
+                    name: data.name
+                });
+                
+                // optional: add a tiny moon-like dot for Saturn (just for aesthetics, not necessary)
+                if (data.name === "SATURN") {
+                    const ringEffect = document.createElement('div');
+                    ringEffect.style.position = 'absolute';
+                    ringEffect.style.top = '50%';
+                    ringEffect.style.left = '50%';
+                    ringEffect.style.width = '38px';
+                    ringEffect.style.height = '16px';
+                    ringEffect.style.marginLeft = '-19px';
+                    ringEffect.style.marginTop = '-8px';
+                    ringEffect.style.borderRadius = '50%';
+                    ringEffect.style.border = '2px solid #dbb87c';
+                    ringEffect.style.opacity = '0.7';
+                    ringEffect.style.transform = 'rotateX(70deg)';
+                    ringEffect.style.pointerEvents = 'none';
+                    planetElem.querySelector('.planet').appendChild(ringEffect);
+                }
+            }
+        }
+        
+        // ----- GLOBAL ANIMATION CONTROL (speed & pause/resume)-----
+        let globalTimeScale = 1.0;
+        
+        function updateAllSpeeds(speed) {
+            globalTimeScale = speed;
+            planetAnimations.forEach(item => {
+                item.anim.timeScale(globalTimeScale);
+            });
+        }
+        
+        function pauseAll() {
+            planetAnimations.forEach(item => item.anim.pause());
+        }
+        
+        function resumeAll() {
+            planetAnimations.forEach(item => item.anim.resume());
+        }
+        
+        // ----- ADD SUN ROTATION & ADDITIONAL EFFECTS -----
+        function addSunRotation() {
+            const sunElement = document.querySelector('.sun');
+            if (sunElement) {
+                gsap.to(sunElement, {
+                    rotationY: 360,
+                    duration: 28,
+                    repeat: -1,
+                    ease: "none",
+                    transformOrigin: "center center"
+                });
+            }
+        }
+        
+        // ----- MOUSE PARALLAX (subtle tilt movement) -----
+        function initMouseParallax() {
+            const container = document.querySelector('.solar-system');
+            const universe = document.querySelector('.universe');
+            let targetRotX = 58, targetRotZ = 5;
+            universe.addEventListener('mousemove', (e) => {
+                const w = window.innerWidth, h = window.innerHeight;
+                const nx = (e.clientX / w) * 2 - 1;
+                const ny = (e.clientY / h) * 2 - 1;
+                const newRotX = 58 + (ny * -3.2);
+                const newRotZ = 5 + (nx * 3.5);
+                gsap.to(container, {
+                    duration: 1.2,
+                    ease: "power2.out",
+                    rotationX: newRotX,
+                    rotationZ: newRotZ,
+                    overwrite: true
+                });
+            });
+            universe.addEventListener('mouseleave', () => {
+                gsap.to(container, {
+                    duration: 1.4,
+                    rotationX: 58,
+                    rotationZ: 5,
+                    ease: "elastic.out(0.7, 0.3)"
+                });
+            });
+        }
+        
+        // ----- ADD SOME FLOATING ASTEROID DUST (cosmetic) -----
+        function addCosmicDust() {
+            const scene = solarSystem;
+            const dustCount = 180;
+            for (let i = 0; i < dustCount; i++) {
+                const dust = document.createElement('div');
+                dust.style.position = 'absolute';
+                dust.style.top = '50%';
+                dust.style.left = '50%';
+                const rad = 80 + Math.random() * 380;
+                const angle = Math.random() * Math.PI * 2;
+                const x = Math.cos(angle) * rad;
+                const z = Math.sin(angle) * rad;
+                dust.style.width = '2px';
+                dust.style.height = '2px';
+                dust.style.background = `rgba(255, 210, 150, ${0.3+Math.random()*0.4})`;
+                dust.style.borderRadius = '50%';
+                dust.style.filter = 'blur(1px)';
+                dust.style.transform = `translateX(${x}px) translateZ(${z}px) rotateX(90deg)`;
+                dust.style.transformStyle = 'preserve-3d';
+                dust.style.pointerEvents = 'none';
+                scene.appendChild(dust);
+                // tiny twinkle
+                gsap.to(dust, {
+                    opacity: 0.1,
+                    duration: 1 + Math.random() * 3,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+            }
+        }
+        
+        // ---- Add subtle central glow halo around sun ----
+        function addSunHalo() {
+            const halo = document.createElement('div');
+            halo.style.position = 'absolute';
+            halo.style.top = '50%';
+            halo.style.left = '50%';
+            halo.style.width = '130px';
+            halo.style.height = '130px';
+            halo.style.marginLeft = '-65px';
+            halo.style.marginTop = '-65px';
+            halo.style.borderRadius = '50%';
+            halo.style.background = 'radial-gradient(circle, rgba(255,140,0,0.25) 0%, rgba(255,80,0,0) 70%)';
+            halo.style.transform = 'rotateX(90deg)';
+            halo.style.pointerEvents = 'none';
+            solarSystem.appendChild(halo);
+        }
+        
+        // ---- Apply different planet axial tilts? optional: gives uniqueness ----
+        function applyPlanetTilts() {
+            // just for realism: tilt each planet slightly different (cosmetic)
+            const planets = document.querySelectorAll('.planet');
+            planets.forEach((planet, idx) => {
+                const tiltX = (idx % 3) * 8 - 12;
+                const tiltZ = (idx * 5) % 25 - 12;
+                gsap.set(planet, { rotationX: tiltX, rotationZ: tiltZ });
+            });
+        }
+        
+        // ---- INIT ALL ----
+        function init() {
+            generateStars();
+            buildSolarSystem();     // creates orbits, planets, animations
+            addSunRotation();
+            addSunHalo();
+            addCosmicDust();
+            initMouseParallax();
+            applyPlanetTilts();
+            
+            // UI elements binding
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValSpan = document.getElementById('speedVal');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resumeBtn = document.getElementById('resumeBtn');
+            
+            speedSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                speedValSpan.innerText = val.toFixed(2) + 'x';
+                updateAllSpeeds(val);
+            });
+            pauseBtn.addEventListener('click', pauseAll);
+            resumeBtn.addEventListener('click', resumeAll);
+            
+            // set initial speed display
+            speedValSpan.innerText = '1.00x';
+            updateAllSpeeds(1.0);
+            
+            // small entrance animation for planets (scale)
+            gsap.fromTo('.planet', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2, stagger: 0.08, ease: "backOut(0.6)" });
+            gsap.fromTo('.orbit-ring', { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 1.4, stagger: 0.05, ease: "power2.out" });
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
